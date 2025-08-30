@@ -1,0 +1,17 @@
+# root
+.env
+data/*
+!data/.gitkeep
+
+# node / frontend
+node_modules
+dist
+*.log
+
+# go / backend
+backend/tmp
+backend/bin
+
+# OS
+.DS_Store
+Thumbs.db
