@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "up": "docker compose up -d",
+    "down": "docker compose down",
+    "logs": "docker compose logs -f backend",
+    "build": "docker compose build --no-cache backend",
+    "demo:build": "cd frontend && VITE_API_URL=/ npm run build",
+    "demo:up": "docker compose up -d web",
+    "demo:down": "docker compose stop web && docker compose rm -f web",
+    "demo:restart": "docker compose restart web",
+    "nginx:t": "docker compose exec web nginx -t",
+    "nginx:reload": "docker compose exec web nginx -s reload"
+  }
+}

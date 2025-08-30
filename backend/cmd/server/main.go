@@ -4,7 +4,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/michaelmichio/tts-backend/internal/db"
 	"github.com/michaelmichio/tts-backend/internal/handlers"
@@ -38,6 +41,26 @@ func main() {
 	r.Use(gin.Recovery())
 	r.MaxMultipartMemory = 20 << 20 // 20MB limit for uploading
 
+	// r.Static("/", "./public")        // serve frontend
+	// r.NoRoute(func(c *gin.Context) { // SPA fallback
+	// 	c.File("./public/index.html")
+	// })
+
+	origins := os.Getenv("CORS_ORIGINS")
+	allow := []string{"http://localhost:5173"} // default dev
+	if origins != "" {
+		allow = strings.Split(origins, ",")
+	}
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     allow,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// 1) Serve YAML
 	r.StaticFile("/openapi.yaml", "./docs/openapi.yaml")
@@ -62,7 +85,7 @@ func main() {
 		auth.POST("/register", authH.Register)
 		auth.POST("/login", authH.Login)
 
-		convH := handlers.NewConversionHandler(conn)
+		convH := handlers.NewConversionHandler(conn, os.Getenv("MEDIA_DIR"))
 		convH.Register(api)
 
 		mediaH := handlers.NewMediaHandler(conn, os.Getenv("MEDIA_DIR"))

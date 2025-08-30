@@ -32,7 +32,35 @@ services:
     volumes:
       - ./data/media:/data/media
       - ./docs:/app/docs:ro
+      # - ./frontend/dist:/app/public:ro
     # untuk dev hot-reload, nanti bisa ditambah command: ["air"]
+
+  # frontend:
+  #   image: node:20-alpine
+  #   working_dir: /app
+  #   command: sh -lc "npm ci && npm run dev -- --host 0.0.0.0"
+  #   ports:
+  #     - "5173:5173"     # dev server
+  #     - "24678:24678"   # HMR websocket (Vite default)
+  #   environment:
+  #     VITE_API_URL: http://localhost:8080
+  #   volumes:
+  #     - ./frontend:/app
+
+  web:
+    image: nginx:alpine
+    depends_on:
+      - backend
+    ports:
+      - "8085:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ | grep -q '<!doctype html>'"]
+      interval: 10s
+      timeout: 2s
+      retries: 10
 
   # swagger:
   #   image: swaggerapi/swagger-ui
