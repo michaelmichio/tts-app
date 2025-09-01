@@ -15,12 +15,10 @@ A full-stack web application that converts text input into speech.
 - **Save Conversion**: Persist conversion history
 - **History**: Display previous conversions with replay functionality
 - **Replay**: Re-synthesize text using saved settings
-- **Download MP3**: If a conversion has an uploaded media file
 
 ### Backend (Go + Gin + GORM + PostgreSQL)
 - **Authentication**: Register, Login with JWT
 - **History API**: Store, retrieve, and delete conversions
-- **Media API**: Upload, download, and delete MP3 files
 - **Swagger UI**: Interactive API documentation at `/docs`
 - **CORS**: Configurable via environment variables
 
@@ -96,9 +94,6 @@ VITE_API_URL=http://localhost:8080
   - `POST /api/conversions`
   - `GET /api/conversions`
   - `DELETE /api/conversions/{id}`
-- **Media**
-  - `POST /api/media`
-  - `GET /api/media/{id}`
 
 👉 Full documentation available at [http://localhost:8080/docs](http://localhost:8080/docs)
 
@@ -109,10 +104,6 @@ VITE_API_URL=http://localhost:8080
 - **Web Speech API in Frontend**  
   Chosen to meet assessment requirements. It provides quick implementation without additional costs.  
   *Trade-off*: Voice quality varies across browsers/devices.
-
-- **Optional Media Upload**  
-  As an enhancement, users can upload and save MP3 files.  
-  When a conversion is deleted, its media is also removed if unused elsewhere.
 
 - **Swagger UI in Backend**  
   Served at the same port (`:8080/docs`) to avoid CORS issues and simplify demos.
@@ -130,7 +121,6 @@ VITE_API_URL=http://localhost:8080
 4. **Play / Pause / Resume / Stop** speech
 5. **Save** conversion → persists in DB
 6. **History** appears → replay with Web Speech
-7. (Optional) **Upload MP3** via Swagger → conversion with `mediaId` can show **Download MP3** button
 
 ---
 
