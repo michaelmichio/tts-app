@@ -27,6 +27,7 @@ services:
       JWT_SECRET: please_change_me
       MEDIA_DIR: /data/media
       CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      JWT_TTL_HOURS: "24"
     ports:
       - "8080:8080"
     volumes:
