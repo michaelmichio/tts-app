@@ -34,40 +34,40 @@ services:
       - ./docs:/app/docs:ro
     restart: unless-stopped
 
-#   caddy:
-#     image: caddy:2-alpine
-#     depends_on:
-#       - backend
-#     ports:
-#       - "80:80"
-#       - "443:443"
-#     volumes:
-#       - ./frontend/dist:/usr/share/app:ro
-#       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-#       - caddy_data:/data
-#       - caddy_config:/config
-#     restart: unless-stopped
-
-# volumes:
-#   caddy_data:
-#   caddy_config:
-
-
-  web:
-    image: nginx:alpine
+  caddy:
+    image: caddy:2-alpine
     depends_on:
       - backend
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/ | grep -qi '<!doctype html>'"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
+      - ./frontend/dist:/usr/share/app:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+
+  # web:
+  #   image: nginx:alpine
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./frontend/dist:/usr/share/nginx/html:ro
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "wget -qO- http://localhost/ | grep -qi '<!doctype html>'"]
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 10
+  #   restart: unless-stopped
 
   # --- Optional: dev-only ---
   # frontend:
