@@ -12,7 +12,12 @@ import {
   Volume2,
   RotateCcw,
   Trash,
+  Save,
 } from "lucide-react";
+
+function clamp(v: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, v));
+}
 
 export default function TextToSpeechPage() {
   const user = useAuthStore((s) => s.user);
@@ -161,7 +166,6 @@ export default function TextToSpeechPage() {
 
   const save = async () => {
     if (!selectedVoiceURI) {
-      alert("Pilih voice dulu");
       return;
     }
 
@@ -241,7 +245,7 @@ export default function TextToSpeechPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,6 +266,7 @@ export default function TextToSpeechPage() {
               <button
                 onClick={logout}
                 className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="logout"
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -270,13 +275,16 @@ export default function TextToSpeechPage() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Panel */}
           <div className="lg:col-span-2 space-y-6">
             {/* Text Input */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label
+                id="text-to-convert"
+                className="block text-sm font-medium text-gray-700 mb-3"
+              >
                 Text to Convert
               </label>
               <textarea
@@ -284,6 +292,7 @@ export default function TextToSpeechPage() {
                 onChange={(e) => setText(e.target.value)}
                 className="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
                 placeholder="Enter the text you want to convert to speech..."
+                aria-labelledby="text-to-convert"
               />
               <div className="flex justify-between items-center mt-3">
                 <div className="text-sm text-gray-500">
@@ -292,6 +301,7 @@ export default function TextToSpeechPage() {
                 <button
                   onClick={() => setText("")}
                   className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors"
+                  aria-label="clear text"
                 >
                   Clear Text
                 </button>
@@ -300,13 +310,17 @@ export default function TextToSpeechPage() {
 
             {/* Voice Selection */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label
+                id="voice-selection"
+                className="block text-sm font-medium text-gray-700 mb-3"
+              >
                 Voice Selection
               </label>
               <select
                 value={selectedVoiceURI}
                 onChange={(e) => setSelectedVoiceURI(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                aria-labelledby="voice-selection"
               >
                 {voices.map((voice: any) => (
                   <option key={voice.name} value={voice.voiceURI}>
@@ -319,9 +333,9 @@ export default function TextToSpeechPage() {
             {/* Audio Controls */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-medium text-gray-700">
+                <div className="text-sm font-medium text-gray-700">
                   Audio Controls
-                </h3>
+                </div>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Volume2 className="w-4 h-4" />
                   <span>
@@ -339,15 +353,26 @@ export default function TextToSpeechPage() {
                   className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white p-3 rounded-lg transition-colors flex items-center gap-2"
                   onClick={play}
                   disabled={!text.trim()}
+                  aria-label="play"
                 >
-                  <Play className="w-5 h-5" />
-                  <span>Play</span>
+                  {status === "idle" ? (
+                    <>
+                      <Play className="w-5 h-5" />
+                      <span>Play</span>
+                    </>
+                  ) : (
+                    <>
+                      <RotateCcw className="w-5 h-5" />
+                      <span>Replay</span>
+                    </>
+                  )}
                 </button>
                 {status !== "paused" ? (
                   <button
                     className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white p-3 rounded-lg transition-colors flex items-center gap-2"
                     onClick={pause}
                     disabled={status !== "playing"}
+                    aria-label="pause"
                   >
                     <Pause className="w-5 h-5" />
                     <span>Pause</span>
@@ -356,13 +381,17 @@ export default function TextToSpeechPage() {
                   <button
                     className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white p-3 rounded-lg transition-colors flex items-center gap-2"
                     onClick={resume}
+                    aria-label="resume"
                   >
+                    <Play className="w-5 h-5" />
                     Resume
                   </button>
                 )}
                 <button
                   onClick={stop}
                   className="bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white p-3 rounded-lg transition-colors flex items-center gap-2"
+                  disabled={status === "idle"}
+                  aria-label="stop"
                 >
                   <Square className="w-5 h-5" />
                   <span>Stop</span>
@@ -370,8 +399,10 @@ export default function TextToSpeechPage() {
                 <button
                   className="bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white p-3 rounded-lg transition-colors flex items-center gap-2"
                   onClick={save}
-                  disabled={loading || !selectedVoiceURI}
+                  disabled={loading || !selectedVoiceURI || !text.trim()}
+                  aria-label="save"
                 >
+                  <Save className="w-5 h-5" />
                   Save
                 </button>
               </div>
@@ -382,13 +413,16 @@ export default function TextToSpeechPage() {
           <div className="space-y-6">
             {/* Voice Customization */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="text-lg font-semibold text-gray-900 mb-4">
                 Voice Settings
-              </h3>
+              </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    id="rate"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Rate: {rate.toFixed(1)}x
                   </label>
                   <input
@@ -399,11 +433,15 @@ export default function TextToSpeechPage() {
                     value={rate}
                     onChange={(e) => setRate(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    aria-labelledby="rate"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    id="pitch"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Pitch: {pitch.toFixed(1)}x
                   </label>
                   <input
@@ -414,11 +452,15 @@ export default function TextToSpeechPage() {
                     value={pitch}
                     onChange={(e) => setPitch(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    aria-labelledby="pitch"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    id="volume"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Volume: {Math.round(volume * 100)}%
                   </label>
                   <input
@@ -429,6 +471,7 @@ export default function TextToSpeechPage() {
                     value={volume}
                     onChange={(e) => setVolume(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    aria-labelledby="volume"
                   />
                 </div>
 
@@ -439,6 +482,7 @@ export default function TextToSpeechPage() {
                     setVolume(1);
                   }}
                   className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  aria-label="reset to default"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Reset to Default
@@ -448,9 +492,9 @@ export default function TextToSpeechPage() {
 
             {/* History Panel */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="text-lg font-semibold text-gray-900 mb-4">
                 Conversion History
-              </h3>
+              </div>
 
               {history.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">
@@ -464,28 +508,31 @@ export default function TextToSpeechPage() {
                       className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
                     >
                       <div className="text-sm text-gray-600 mb-2">
-                        {entry.timestamp}
+                        {new Date(entry.createdAt).toLocaleString()}
                       </div>
                       <div className="text-sm text-gray-900 mb-2 line-clamp-2">
                         {entry.text.substring(0, 100)}...
                       </div>
+                      <div className="text-xs text-gray-500 mb-0">
+                        {entry.voiceName} ({entry.voiceLang})
+                      </div>
                       <div className="text-xs text-gray-500 mb-3">
-                        {entry.voiceName} ({entry.voiceLang}) · rate{" "}
-                        {entry.rate}x · pitch {entry.pitch}x · vol{" "}
-                        {entry.volume} ·{" "}
-                        {new Date(entry.createdAt).toLocaleString()}
+                        Rate {entry.rate}x • Pitch {entry.pitch}x • Vol{" "}
+                        {entry.volume * 100}%
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => replayFromHistory(entry)}
-                          className="bg-blue-100 hover:bg-blue-200 text-blue-600 px-3 py-1 rounded text-xs flex items-center gap-1"
+                          className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-xs flex items-center gap-1"
+                          aria-label="replay"
                         >
                           <Play className="w-3 h-3" />
                           Replay
                         </button>
                         <button
-                          className="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-1 rounded text-xs flex items-center gap-1"
+                          className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs flex items-center gap-1"
                           onClick={() => remove(entry.id)}
+                          aria-label="delete"
                         >
                           <Trash className="w-3 h-3" />
                           Delete
@@ -501,7 +548,7 @@ export default function TextToSpeechPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
+      <footer className="bg-white border-t border-gray-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-gray-500">
             <p>© 2025 VoiceGen. Advanced Text-to-Speech Technology.</p>
@@ -510,8 +557,4 @@ export default function TextToSpeechPage() {
       </footer>
     </div>
   );
-}
-
-function clamp(v: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, v));
 }

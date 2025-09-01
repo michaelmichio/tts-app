@@ -37,7 +37,7 @@ export default function LoginPage() {
     setErr(null);
     try {
       await api.post("/api/auth/register", { email, password });
-      // setelah register, otomatis login
+      // automatic login after register
       const res = await api.post("/api/auth/login", { email, password });
       setAuth(res.data.token, res.data.user);
       location.href = "/";
@@ -63,7 +63,10 @@ export default function LoginPage() {
           <form onSubmit={onSubmit} className="col gap">
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  id="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <input
@@ -72,11 +75,15 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  aria-labelledby="email"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  id="password"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Password
                 </label>
                 <input
@@ -85,6 +92,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPw(e.target.value)}
                   required
+                  aria-labelledby="password"
                 />
               </div>
 
@@ -102,7 +110,10 @@ export default function LoginPage() {
           <form onSubmit={onRegister} className="col gap">
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  id="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Email Address
                 </label>
                 <input
@@ -111,11 +122,15 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  aria-labelledby="email"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  id="password"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Password
                 </label>
                 <input
@@ -125,6 +140,7 @@ export default function LoginPage() {
                   onChange={(e) => setPw(e.target.value)}
                   required
                   minLength={8}
+                  aria-labelledby="password"
                 />
               </div>
 
@@ -145,7 +161,7 @@ export default function LoginPage() {
         <div className="mt-6 text-center text-sm text-gray-500">
           {mode === "login" ? "Don't" : "Already"} have an account?{" "}
           <span
-            className="text-blue-500 cursor-pointer"
+            className="text-blue-800 cursor-pointer"
             onClick={() =>
               setMode((prev) => (prev === "login" ? "register" : "login"))
             }
@@ -154,44 +170,6 @@ export default function LoginPage() {
           </span>
           .
         </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="container">
-      <div className="card" style={{ maxWidth: 420 }}>
-        <h1>Login</h1>
-        <form onSubmit={onSubmit} className="col gap">
-          <label className="col">
-            <span>Email</span>
-            <input
-              className="input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
-          <label className="col">
-            <span>Password</span>
-            <input
-              className="input"
-              type="password"
-              value={password}
-              onChange={(e) => setPw(e.target.value)}
-              required
-            />
-          </label>
-          {err && <div className="error">{err}</div>}
-          <button className="btn" disabled={loading}>
-            {loading ? "..." : "Login"}
-          </button>
-        </form>
-        <p className="muted">
-          Don't have an account? Register via Swagger / Postman (endpoint
-          /api/auth/register) for dev.
-        </p>
       </div>
     </div>
   );
