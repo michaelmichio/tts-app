@@ -146,8 +146,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {err && <div className="error">{err}</div>}
-
               {err && <div className="text-red-500">{err}</div>}
 
               <button
