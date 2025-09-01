@@ -1,7 +1,7 @@
-# Redirect www -> non-www (Optional, delete if not needed)
-www.srv986885.hstgr.cloud {
-  redir https://srv986885.hstgr.cloud{uri}
-}
+# # Redirect www -> non-www (Optional, delete if not needed)
+# www.srv986885.hstgr.cloud {
+#   redir https://srv986885.hstgr.cloud{uri}
+# }
 
 srv986885.hstgr.cloud {
   # Static site (frontend build)
@@ -15,17 +15,17 @@ srv986885.hstgr.cloud {
 
   # SPA fallback (React Router)
   try_files {path} /index.html
-
+  
   # Proxy API -> backend (Gin)
-  handle_path /api/* {
+  handle /api/* {
     reverse_proxy backend:8080
   }
 
   # Proxy Swagger UI & spec
-  handle_path /docs/* {
+  handle /docs/* {
     reverse_proxy backend:8080
   }
-  handle_path /openapi.yaml {
+  handle /openapi.yaml {
     reverse_proxy backend:8080
   }
 
@@ -35,7 +35,6 @@ srv986885.hstgr.cloud {
     X-Frame-Options "SAMEORIGIN"
     Referrer-Policy "no-referrer-when-downgrade"
     Permissions-Policy "geolocation=(), microphone=(), camera=()"
-    # ⚠️ Sesuaikan CSP bila perlu resource eksternal
     Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; font-src 'self' data:"
   }
 }
