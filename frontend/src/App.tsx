@@ -1,19 +1,26 @@
-import { useAuthStore } from "./store";
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
-import TextToSpeechPage from "./pages/TextToSpeechPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import TextToSpeechPage from "./pages/TextToSpeech/TextToSpeechPage";
+import TextToSpeechLayout from "./pages/TextToSpeech/TextToSpeechLayout";
 
 export default function App() {
-  const isValid = useAuthStore((s) => s.isValid);
-  const ok = isValid();
+  return (
+    <Routes>
+      {/* public */}
+      <Route path="/login" element={<LoginPage />} />
 
-  window.addEventListener("storage", (e) => {
-    if (e.key === "token" && e.newValue === null) {
-      useAuthStore.getState().clear();
-      if (!location.pathname.startsWith("/login")) location.href = "/login";
-    }
-  });
+      {/* protected */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Navigate to="/app" replace />} />
+        <Route path="" element={<TextToSpeechLayout />}>
+          <Route path="/app" element={<TextToSpeechPage/>} />
+        </Route>
+      </Route>
 
-  const path = location.pathname;
-  if (path.startsWith("/login")) return <LoginPage />;
-  return ok ? <TextToSpeechPage /> : <LoginPage />;
+      {/* 404 */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 }

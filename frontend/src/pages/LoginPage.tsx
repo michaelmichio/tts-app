@@ -1,12 +1,14 @@
 import { type FormEvent, useState } from "react";
-import { api } from "../api";
-import { useAuthStore } from "../store";
+import { api } from "../services/api";
+import { useAuthStore } from "../stores/store";
 import { Mic } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type Mode = "login" | "register";
 
 export default function LoginPage() {
   const setAuth = useAuthStore((s) => s.setAuth);
+  const navigate = useNavigate();
 
   const [mode, setMode] = useState<Mode>("login");
 
@@ -23,9 +25,9 @@ export default function LoginPage() {
     try {
       const res = await api.post("/api/auth/login", { email, password });
       setAuth(res.data.token, res.data.user);
-      location.href = "/";
+      navigate("/app", { replace: true });
     } catch (e: any) {
-      setErr(e?.response?.data?.error ?? "Login gagal");
+      setErr(e?.response?.data?.error ?? "Failed to login");
     } finally {
       setLoading(false);
     }
@@ -40,9 +42,9 @@ export default function LoginPage() {
       // automatic login after register
       const res = await api.post("/api/auth/login", { email, password });
       setAuth(res.data.token, res.data.user);
-      location.href = "/";
+      navigate("/app", { replace: true });
     } catch (e: any) {
-      setErr(e?.response?.data?.error ?? "Register gagal");
+      setErr(e?.response?.data?.error ?? "Failed to register");
     } finally {
       setLoading(false);
     }
