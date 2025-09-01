@@ -5,15 +5,17 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app
-    ports:
-      - "5432:5432"
+    # Security: do not expose DB ports to the public on VPS
+    # ports:
+    #   - "5432:5432"
     volumes:
       - ./data/pg:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
-      interval: 2s
-      timeout: 2s
+      interval: 5s
+      timeout: 3s
       retries: 30
+    restart: unless-stopped
 
   backend:
     build: ./backend
@@ -21,56 +23,49 @@ services:
       db:
         condition: service_healthy
     environment:
-      APP_ENV: development
+      APP_ENV: production
       PORT: 8080
       DB_DSN: postgres://postgres:postgres@db:5432/app?sslmode=disable
-      JWT_SECRET: please_change_me
-      MEDIA_DIR: /data/media
-      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      JWT_SECRET: change_this_to_a_long_random_secret_value
       JWT_TTL_HOURS: "24"
-    ports:
-      - "8080:8080"
+      MEDIA_DIR: /data/media
+      # Set to your public origin (domain or IP with http/https scheme).
+      # If you access via Nginx at http://YOUR_SERVER_IP or http://your-domain.com,
+      # fill in one of the following:
+      CORS_ORIGINS: http://your-domain.com,http://YOUR_SERVER_IP
+    expose:
+      - "8080"
     volumes:
       - ./data/media:/data/media
       - ./docs:/app/docs:ro
-      # - ./frontend/dist:/app/public:ro
-    # untuk dev hot-reload, nanti bisa ditambah command: ["air"]
-
-  # frontend:
-  #   image: node:20-alpine
-  #   working_dir: /app
-  #   command: sh -lc "npm ci && npm run dev -- --host 0.0.0.0"
-  #   ports:
-  #     - "5173:5173"     # dev server
-  #     - "24678:24678"   # HMR websocket (Vite default)
-  #   environment:
-  #     VITE_API_URL: http://localhost:8080
-  #   volumes:
-  #     - ./frontend:/app
+    restart: unless-stopped
+    # for dev hot-reload, add the command: ["air"]
 
   web:
     image: nginx:alpine
     depends_on:
       - backend
     ports:
-      - "8085:80"
+      - "80:80"
     volumes:
       - ./frontend/dist:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/ | grep -q '<!doctype html>'"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ | grep -qi '<!doctype html>'"]
       interval: 10s
-      timeout: 2s
+      timeout: 3s
       retries: 10
+    restart: unless-stopped
 
-  # swagger:
-  #   image: swaggerapi/swagger-ui
+  # --- Optional: dev-only ---
+  # frontend:
+  #   image: node:20-alpine
+  #   working_dir: /app
+  #   command: sh -lc "npm ci && npm run dev -- --host 0.0.0.0"
   #   ports:
-  #     - "8081:8080"
-  #   volumes:
-  #     - ./docs/openapi.yaml:/openapi.yaml:ro 
+  #     - "5173:5173"
+  #     - "24678:24678"
   #   environment:
-  #     - SWAGGER_JSON=/openapi.yaml
-  #   # volumes:
-  #   #  - ./docs/openapi.yaml:/usr/share/nginx/html/openapi.yaml:ro
-  #   # environment:
+  #     VITE_API_URL: http://localhost:8080
+  #   volumes:
+  #     - ./frontend:/app
