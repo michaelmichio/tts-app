@@ -30,11 +30,11 @@ A full-stack web application that converts text input into speech.
 
 ![Architecture Diagram](./tts_architecture.png)
 
+
 **Flow**:
 - The **Frontend** uses the Web Speech API for in-browser TTS and communicates with the backend via Axios (Bearer JWT).
-- The **Backend** (Go + Gin + GORM) handles authentication, history storage, and optional media management.
+- The **Backend** (Go + Gin + GORM) handles authentication and history storage.
 - Conversion metadata is stored in **Postgres**.
-- Uploaded audio files (optional) are stored in a **local media directory**.
 - API documentation is served via **Swagger UI**.
 
 ---
