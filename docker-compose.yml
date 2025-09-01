@@ -83,3 +83,7 @@ services:
   #     VITE_API_URL: http://localhost:8080
   #   volumes:
   #     - ./frontend:/app
+
+  volumes:
+    caddy_data:
+    caddy_config:
