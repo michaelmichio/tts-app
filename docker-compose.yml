@@ -5,9 +5,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: app
-    # Security: do not expose DB ports to the public on VPS
-    # ports:
-    #   - "5432:5432"
     volumes:
       - ./data/pg:/var/lib/postgresql/data
     healthcheck:
@@ -29,17 +26,13 @@ services:
       JWT_SECRET: change_this_to_a_long_random_secret_value
       JWT_TTL_HOURS: "24"
       MEDIA_DIR: /data/media
-      # Set to your public origin (domain or IP with http/https scheme).
-      # If you access via Nginx at http://YOUR_SERVER_IP or http://your-domain.com,
-      # fill in one of the following:
-      CORS_ORIGINS: http://your-domain.com,http://YOUR_SERVER_IP
+      CORS_ORIGINS: https://srv986885.hstgr.cloud
     expose:
       - "8080"
     volumes:
       - ./data/media:/data/media
       - ./docs:/app/docs:ro
     restart: unless-stopped
-    # for dev hot-reload, add the command: ["air"]
 
   caddy:
     image: caddy:2-alpine
@@ -54,6 +47,11 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+
 
   # web:
   #   image: nginx:alpine
@@ -83,7 +81,3 @@ services:
   #     VITE_API_URL: http://localhost:8080
   #   volumes:
   #     - ./frontend:/app
-
-  volumes:
-    caddy_data:
-    caddy_config:
