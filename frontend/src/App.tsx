@@ -1,11 +1,19 @@
 import { useAuthStore } from "./store";
 import LoginPage from "./pages/LoginPage";
-import TTSPage from "./pages/TextToSpeechPage";
+import TextToSpeechPage from "./pages/TextToSpeechPage";
 
 export default function App() {
-  const user = useAuthStore((s) => s.user);
-  // simple router by path:
+  const isValid = useAuthStore((s) => s.isValid);
+  const ok = isValid();
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "token" && e.newValue === null) {
+      useAuthStore.getState().clear();
+      if (!location.pathname.startsWith("/login")) location.href = "/login";
+    }
+  });
+
   const path = location.pathname;
   if (path.startsWith("/login")) return <LoginPage />;
-  return user ? <TTSPage /> : <LoginPage />;
+  return ok ? <TextToSpeechPage /> : <LoginPage />;
 }
